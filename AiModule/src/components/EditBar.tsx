@@ -45,10 +45,9 @@ export function EditBar({ title, onDelete }: EditBarProps) {
                         onConfirm={onDelete}
                     >
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             style={{
                                 color: '#ef4444',
-                                borderColor: '#fecaca',
                                 cursor: 'pointer'
                             }}
                             className="hover:bg-red-50"
@@ -58,7 +57,6 @@ export function EditBar({ title, onDelete }: EditBarProps) {
                         </Button>
                     </ConfirmDialog>
 
-                    {/* Save Draft button - secondary/outline */}
                     <ConfirmDialog
                         title="Save Draft"
                         description="Your changes will be saved as a draft. You can continue editing later."
@@ -67,10 +65,9 @@ export function EditBar({ title, onDelete }: EditBarProps) {
                         onConfirm={saveChanges}
                     >
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             style={{
                                 color: '#374151',
-                                borderColor: '#d1d5db',
                                 cursor: 'pointer'
                             }}
                             className="hover:bg-gray-100"
@@ -80,13 +77,11 @@ export function EditBar({ title, onDelete }: EditBarProps) {
                         </Button>
                     </ConfirmDialog>
 
-                    {/* Cancel button - secondary/outline */}
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={discardChanges}
                         style={{
                             color: '#ef4444',
-                            borderColor: '#fecaca',
                             cursor: 'pointer'
                         }}
                         className="hover:bg-red-50"

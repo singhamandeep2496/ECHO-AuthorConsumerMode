@@ -1,9 +1,10 @@
-import { Header } from '../components/Header';
+import { Navbar } from '../components/Navbar/Navbar';
 import { LeftSidebar } from '../components/LeftSidebar';
 import { RightSidebar } from '../components/RightSidebar';
 import { CaseStudyContent } from '../components/CaseStudyContent';
 import { EditBar } from '../components/EditBar';
 import { EditableContent } from '../components/EditableContent';
+import { AIPanel } from '../components/AIPanel';
 import { useEdit } from '../context/EditContext';
 
 export function CaseStudyPage() {
@@ -14,9 +15,20 @@ export function CaseStudyPage() {
         console.log('Case study deleted');
     };
 
+    // Mock user for navbar
+    const mockUser = {
+        id: '1',
+        name: 'Dev User'
+    };
+
     return (
         <div className="h-screen flex flex-col overflow-hidden">
-            <Header />
+            <Navbar
+                user={mockUser}
+                onLogin={() => console.log('Login clicked')}
+                onLogout={() => console.log('Logout clicked')}
+                onContribute={() => console.log('Contribute clicked')}
+            />
             {isEditMode && (
                 <EditBar
                     title="Hero Vida EICMA 2025 Case Study"
@@ -26,12 +38,8 @@ export function CaseStudyPage() {
             <div className="flex-1 flex overflow-hidden">
                 <LeftSidebar />
                 {isEditMode ? <EditableContent /> : <CaseStudyContent />}
-                {/* Keep RightSidebar space as placeholder in edit mode */}
-                {isEditMode ? (
-                    <div style={{ width: 200, borderLeft: '1px solid #e5e7eb', backgroundColor: '#fafafa' }} />
-                ) : (
-                    <RightSidebar />
-                )}
+                {/* Show AIPanel in edit mode, RightSidebar in view mode */}
+                {isEditMode ? <AIPanel /> : <RightSidebar />}
             </div>
         </div>
     );

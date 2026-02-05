@@ -18,7 +18,7 @@ export function RightSidebar() {
         <Box
             asChild
             style={{
-                width: 200,
+                width: 320,
                 borderLeft: '1px solid #e5e7eb',
                 backgroundColor: 'white',
                 padding: 16,

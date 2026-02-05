@@ -1,106 +1,246 @@
-import { useState, useMemo } from 'react';
-import { Box, Flex, Text, TextField, Button, Badge, ScrollArea } from '@radix-ui/themes';
-import * as Tabs from '@radix-ui/react-tabs';
-import { Search, ChevronDown, ChevronRight, Pencil, GitBranch } from 'lucide-react';
+import { useState } from 'react';
+import { Box, Flex, Text, ScrollArea } from '@radix-ui/themes';
+import {
+    Folder,
+    ChevronDown,
+    ChevronRight,
+    Code,
+} from 'lucide-react';
 
-interface SidebarItem {
+interface MenuItem {
     id: string;
     label: string;
-    type: 'category' | 'item';
-    icon?: 'pencil';
-    children?: SidebarItem[];
-    category?: string;
+    icon?: React.ReactNode;
+    count?: number;
+    isExpandable?: boolean;
+    isDisabled?: boolean;
+    children?: MenuItem[];
 }
 
-const sidebarData: SidebarItem[] = [
+const menuData: MenuItem[] = [
     {
-        id: 'case-study',
-        label: 'Case Study',
-        type: 'category',
-        category: 'Case Study',
+        id: 'vehicles',
+        label: 'Vehicles',
+        icon: <Folder size={16} />,
+        count: 4,
+        isExpandable: true,
         children: [
-            { id: 'hero-vida', label: 'Hero Vida EICMA 2025 ...', type: 'item', icon: 'pencil', category: 'Case Study' }
+            {
+                id: 'v1',
+                label: 'V1',
+                isExpandable: true,
+                children: [
+                    { id: 'v1-design', label: 'Design System' },
+                    { id: 'v1-components', label: 'Components' },
+                    { id: 'v1-guidelines', label: 'Guidelines' },
+                ]
+            },
+            {
+                id: 'v2',
+                label: 'V2',
+                isExpandable: true,
+                children: [
+                    { id: 'v2-design', label: 'Design System' },
+                    { id: 'v2-components', label: 'Components' },
+                ]
+            },
+            {
+                id: 'vx2',
+                label: 'VX2',
+                isExpandable: true,
+                children: [
+                    { id: 'vx2-case-study', label: 'Case Study' },
+                    { id: 'vx2-branding', label: 'Branding' },
+                    { id: 'vx2-ui', label: 'UI Kit' },
+                ]
+            },
+            {
+                id: 'dirt-e-k3',
+                label: 'DIRT.E K3',
+                isExpandable: true,
+                children: [
+                    { id: 'dirt-colors', label: 'Color Palette' },
+                    { id: 'dirt-icons', label: 'Iconography' },
+                ]
+            },
         ]
     },
     {
-        id: 'fgh',
-        label: 'fgh',
-        type: 'category',
-        category: 'Guidelines',
+        id: 'digital-products',
+        label: 'Digital Products',
+        icon: <Code size={16} />,
+        count: 3,
+        isExpandable: true,
         children: [
-            { id: 'ghfh', label: 'ghfh', type: 'item', category: 'Guidelines' }
+            {
+                id: 'capp',
+                label: 'CApp',
+                isExpandable: true,
+                children: [
+                    { id: 'capp-screens', label: 'Screens' },
+                    { id: 'capp-flows', label: 'User Flows' },
+                    { id: 'capp-assets', label: 'Assets' },
+                ]
+            },
+            {
+                id: 'website',
+                label: 'Website',
+                isExpandable: true,
+                children: [
+                    { id: 'web-pages', label: 'Pages' },
+                    { id: 'web-components', label: 'Components' },
+                ]
+            },
+            {
+                id: 'hmi',
+                label: 'HMI',
+                isExpandable: true,
+                children: [
+                    { id: 'hmi-dashboard', label: 'Dashboard' },
+                    { id: 'hmi-controls', label: 'Controls' },
+                    { id: 'hmi-navigation', label: 'Navigation' },
+                ]
+            },
         ]
     },
-    {
-        id: 'token-management',
-        label: 'Token Management',
-        type: 'category',
-        category: 'Assets',
-        children: [
-            { id: 'token-theory', label: 'Token Transformation Theory', type: 'item', category: 'Assets' }
-        ]
-    },
-    {
-        id: 'uncategorized',
-        label: 'Uncategorized',
-        type: 'category',
-        category: 'Opinions',
-        children: [
-            { id: 'dfgdg', label: 'dfgdg', type: 'item', category: 'Opinions' }
-        ]
-    }
 ];
 
-export function LeftSidebar() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [activeTab, setActiveTab] = useState('all');
-    const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-        new Set(['case-study'])
-    );
+// Current active page - simulating Vehicle > VX2 > Case Study
+const ACTIVE_PAGE_ID = 'vx2-case-study';
 
-    const toggleCategory = (categoryId: string) => {
-        setExpandedCategories(prev => {
+// Helper to find parent IDs of the active page
+const findParentIds = (items: MenuItem[], targetId: string, parents: string[] = []): string[] | null => {
+    for (const item of items) {
+        if (item.id === targetId) {
+            return parents;
+        }
+        if (item.children) {
+            const found = findParentIds(item.children, targetId, [...parents, item.id]);
+            if (found) return found;
+        }
+    }
+    return null;
+};
+
+export function LeftSidebar() {
+    // Get parent IDs to auto-expand them
+    const parentIds = findParentIds(menuData, ACTIVE_PAGE_ID) || [];
+
+    const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set([...parentIds]));
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+    const toggleExpand = (id: string, isDisabled?: boolean) => {
+        if (isDisabled) return;
+        setExpandedItems(prev => {
             const newSet = new Set(prev);
-            if (newSet.has(categoryId)) {
-                newSet.delete(categoryId);
+            if (newSet.has(id)) {
+                newSet.delete(id);
             } else {
-                newSet.add(categoryId);
+                newSet.add(id);
             }
             return newSet;
         });
     };
 
-    const filteredData = useMemo(() => {
-        let data = sidebarData;
+    const getBackgroundColor = (id: string, isDisabled: boolean, isActive: boolean) => {
+        if (isDisabled) return 'transparent';
+        if (isActive) return '#f3f4f6';
+        if (hoveredItem === id) return '#f3f4f6';
+        return 'transparent';
+    };
 
-        if (activeTab !== 'all') {
-            const tabCategory = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
-            data = data.filter(item => item.category === tabCategory);
-        }
+    // Recursive component for rendering menu items at any level
+    const renderMenuItem = (item: MenuItem, level: number = 0) => {
+        const isDisabled = item.isDisabled || false;
+        const isExpanded = expandedItems.has(item.id);
+        const hasChildren = item.children && item.children.length > 0;
+        const isExpandable = item.isExpandable && hasChildren;
+        const isActive = item.id === ACTIVE_PAGE_ID;
 
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase();
-            data = data.map(category => ({
-                ...category,
-                children: category.children?.filter(child =>
-                    child.label.toLowerCase().includes(query)
-                )
-            })).filter(category =>
-                category.label.toLowerCase().includes(query) ||
-                (category.children && category.children.length > 0)
-            );
-        }
+        const marginLeft = level === 0 ? 0 : 24;
+        const paddingLeft = level === 0 ? 12 : 16;
 
-        return data;
-    }, [activeTab, searchQuery]);
+        return (
+            <Box key={item.id}>
+                {/* Menu Item */}
+                <Flex
+                    align="center"
+                    justify="between"
+                    onClick={() => isExpandable ? toggleExpand(item.id, isDisabled) : null}
+                    onMouseEnter={() => !isDisabled && setHoveredItem(item.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    style={{
+                        padding: level === 0 ? '10px 12px' : '8px 12px',
+                        borderRadius: level === 0 ? 8 : 6,
+                        cursor: isDisabled ? 'not-allowed' : (isExpandable ? 'pointer' : 'default'),
+                        backgroundColor: getBackgroundColor(item.id, isDisabled, isActive),
+                        opacity: isDisabled ? 0.4 : 1,
+                        transition: 'background-color 0.15s ease',
+                        userSelect: 'none'
+                    }}
+                >
+                    <Flex align="center" gap="3">
+                        {level === 0 && item.icon && (
+                            <Box style={{ color: isDisabled ? '#d1d5db' : '#6b7280' }}>
+                                {item.icon}
+                            </Box>
+                        )}
+                        <Text
+                            size="2"
+                            weight={isActive ? 'medium' : 'regular'}
+                            style={{
+                                color: isDisabled ? '#d1d5db' : (isActive ? '#1f2937' : '#4b5563')
+                            }}
+                        >
+                            {item.label}
+                        </Text>
+                    </Flex>
+
+                    {isExpandable && (
+                        <Box
+                            style={{
+                                color: isDisabled ? '#d1d5db' : (level === 0 ? '#6b7280' : '#9ca3af'),
+                                backgroundColor: level === 0 && isExpanded ? '#e5e7eb' : 'transparent',
+                                borderRadius: 4,
+                                padding: level === 0 ? 4 : 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            {isExpanded ? (
+                                <ChevronDown size={level === 0 ? 16 : 12} />
+                            ) : (
+                                <ChevronRight size={level === 0 ? 16 : 12} />
+                            )}
+                        </Box>
+                    )}
+                </Flex>
+
+                {/* Children */}
+                {isExpandable && isExpanded && !isDisabled && (
+                    <Box
+                        style={{
+                            marginLeft: marginLeft,
+                            marginTop: 4,
+                            paddingLeft: paddingLeft,
+                            borderLeft: '1px solid #e5e7eb'
+                        }}
+                    >
+                        {item.children!.map((child) => renderMenuItem(child, level + 1))}
+                    </Box>
+                )}
+            </Box>
+        );
+    };
 
     return (
         <Box
             asChild
             style={{
-                width: 280,
-                backgroundColor: '#fafafa',
-                borderRight: '1px solid #e5e7eb',
+                width: 240,
+                backgroundColor: 'white',
+                borderRight: '1px solid rgba(0,0,0,0.1)',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100%',
@@ -108,147 +248,11 @@ export function LeftSidebar() {
             }}
         >
             <aside>
-                {/* Branch indicator and Submit */}
-                <Flex direction="column" gap="3" p="4">
-                    {/* Branch Indicator */}
-                    <Flex
-                        align="center"
-                        justify="between"
-                        style={{
-                            padding: '8px 12px',
-                            border: '1px solid #d1d5db',
-                            borderRadius: 6,
-                            backgroundColor: 'white'
-                        }}
-                    >
-                        <Flex align="center" gap="2">
-                            <GitBranch size={14} style={{ color: '#6b7280' }} />
-                            <Text size="2" style={{ color: '#374151' }}>create branch bug</Text>
-                        </Flex>
-                        <Badge size="1" variant="soft" color="gray">Draft</Badge>
-                    </Flex>
-
-                    {/* Submit for Review Button */}
-                    <Button
-                        style={{
-                            backgroundColor: '#f97316',
-                            color: 'white',
-                            cursor: 'pointer'
-                        }}
-                        className="hover:bg-orange-600 active:bg-orange-700 transition-colors"
-                    >
-                        <Text size="2" weight="medium">Submit for Review</Text>
-                    </Button>
-                </Flex>
-
-                {/* Search */}
-                <Box px="4" pb="4">
-                    <TextField.Root
-                        placeholder="Search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        size="2"
-                    >
-                        <TextField.Slot>
-                            <Search size={14} style={{ color: '#9ca3af' }} />
-                        </TextField.Slot>
-                    </TextField.Root>
-                </Box>
-
-                {/* Tabs */}
-                <Tabs.Root value={activeTab} onValueChange={setActiveTab} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                    <Box style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        <Tabs.List style={{ display: 'flex', paddingLeft: 16, paddingRight: 16, gap: 0 }}>
-                            {['all', 'guidelines', 'assets', 'opinions'].map((tab) => (
-                                <Tabs.Trigger
-                                    key={tab}
-                                    value={tab}
-                                    style={{
-                                        padding: '8px 10px',
-                                        fontSize: 12,
-                                        fontWeight: 500,
-                                        color: activeTab === tab ? '#f97316' : '#6b7280',
-                                        background: 'none',
-                                        border: 'none',
-                                        borderBottom: activeTab === tab ? '2px solid #f97316' : '2px solid transparent',
-                                        cursor: 'pointer',
-                                        textTransform: 'capitalize',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    {tab === 'all' ? 'All' : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                                </Tabs.Trigger>
-                            ))}
-                        </Tabs.List>
+                <ScrollArea style={{ flex: 1 }}>
+                    <Box py="3" px="2">
+                        {menuData.map((item) => renderMenuItem(item, 0))}
                     </Box>
-
-                    {/* Tree content */}
-                    <ScrollArea style={{ flex: 1 }}>
-                        <Box p="3">
-                            {filteredData.map((category) => (
-                                <Box key={category.id} mb="2">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => toggleCategory(category.id)}
-                                        style={{
-                                            width: '100%',
-                                            justifyContent: 'flex-start',
-                                            padding: '8px 10px',
-                                            color: '#374151'
-                                        }}
-                                    >
-                                        <Flex align="center" gap="2">
-                                            {expandedCategories.has(category.id) ? (
-                                                <ChevronDown size={14} style={{ color: '#9ca3af' }} />
-                                            ) : (
-                                                <ChevronRight size={14} style={{ color: '#9ca3af' }} />
-                                            )}
-                                            <Text size="2" weight="medium">{category.label}</Text>
-                                        </Flex>
-                                    </Button>
-
-                                    {expandedCategories.has(category.id) && category.children && (
-                                        <Box ml="5" mt="1">
-                                            {category.children.map((item) => (
-                                                <Button
-                                                    key={item.id}
-                                                    variant="ghost"
-                                                    style={{
-                                                        width: '100%',
-                                                        justifyContent: 'flex-start',
-                                                        padding: '8px 10px',
-                                                        color: '#4b5563'
-                                                    }}
-                                                    className="hover:bg-orange-50 group"
-                                                >
-                                                    <Flex align="center" gap="2" style={{ width: '100%' }}>
-                                                        {item.icon === 'pencil' && (
-                                                            <Pencil size={12} style={{ color: '#f97316' }} />
-                                                        )}
-                                                        <Text size="2" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                            {item.label}
-                                                        </Text>
-                                                        <Box
-                                                            style={{
-                                                                width: 6,
-                                                                height: 6,
-                                                                backgroundColor: '#f97316',
-                                                                borderRadius: '50%',
-                                                                marginLeft: 'auto',
-                                                                opacity: 0
-                                                            }}
-                                                            className="group-hover:opacity-100"
-                                                        />
-                                                    </Flex>
-                                                </Button>
-                                            ))}
-                                        </Box>
-                                    )}
-                                </Box>
-                            ))}
-                        </Box>
-                    </ScrollArea>
-                </Tabs.Root>
+                </ScrollArea>
             </aside>
         </Box>
     );
