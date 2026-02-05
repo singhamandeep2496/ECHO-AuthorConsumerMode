@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { Box, Flex, Text, ScrollArea } from '@radix-ui/themes';
 import {
-    Folder,
     ChevronDown,
     ChevronRight,
-    Code,
 } from 'lucide-react';
 
 interface MenuItem {
     id: string;
     label: string;
-    icon?: React.ReactNode;
     count?: number;
     isExpandable?: boolean;
     isDisabled?: boolean;
@@ -21,7 +18,6 @@ const menuData: MenuItem[] = [
     {
         id: 'vehicles',
         label: 'Vehicles',
-        icon: <Folder size={16} />,
         count: 4,
         isExpandable: true,
         children: [
@@ -68,7 +64,6 @@ const menuData: MenuItem[] = [
     {
         id: 'digital-products',
         label: 'Digital Products',
-        icon: <Code size={16} />,
         count: 3,
         isExpandable: true,
         children: [
@@ -180,11 +175,6 @@ export function LeftSidebar() {
                     }}
                 >
                     <Flex align="center" gap="3">
-                        {level === 0 && item.icon && (
-                            <Box style={{ color: isDisabled ? '#d1d5db' : '#6b7280' }}>
-                                {item.icon}
-                            </Box>
-                        )}
                         <Text
                             size="2"
                             weight={isActive ? 'medium' : 'regular'}
