@@ -1,10 +1,15 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@radix-ui/themes'
 import { HamburgerMenuIcon, Cross1Icon, PersonIcon, ExitIcon, DashboardIcon, BellIcon } from '@radix-ui/react-icons'
+import { GitBranch, ChevronDown } from 'lucide-react'
 import { NavLinks } from './NavLinks'
 import { SearchBar } from './SearchBar'
 import { MobileMenu } from './MobileMenu'
 import echoLogo from '../../assets/echo-logo.png'
+
+const BRANCHES = ['Main', 'dev', 'staging', 'feature/new-ui']
+const APP_VERSION = 'v1.0.0'
 
 interface User {
   id: string
@@ -16,12 +21,14 @@ interface NavbarProps {
   user?: User | null
   onLogin?: () => void
   onLogout?: () => void
-  onContribute?: () => void
 }
 
-export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
+export function Navbar({ user, onLogin, onLogout }: NavbarProps) {
+  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [branchMenuOpen, setBranchMenuOpen] = useState(false)
+  const [activeBranch, setActiveBranch] = useState('Main')
   const [searchQuery, setSearchQuery] = useState('')
 
   const isLoggedIn = !!user
@@ -49,11 +56,102 @@ export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
           paddingRight: '24px'
         }}
       >
-        {/* Left: Logo */}
-        <div className="flex items-center">
+        {/* Left: Logo + Version / Branch */}
+        <div className="flex items-center gap-3">
           <a href="/" className="flex items-center">
             <img src={echoLogo} alt="ECHO" className="h-8" />
           </a>
+
+          {isLoggedIn ? (
+            /* Branch selector (logged in) */
+            <div
+              style={{ position: 'relative' }}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setBranchMenuOpen(false)
+                }
+              }}
+            >
+              <button
+                onClick={() => setBranchMenuOpen(!branchMenuOpen)}
+                className="flex items-center gap-1.5 cursor-pointer hover:bg-gray-100"
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'transparent',
+                  fontSize: '0.8rem',
+                  fontWeight: 500,
+                  color: '#374151',
+                  transition: 'background-color 0.15s ease',
+                }}
+                tabIndex={0}
+              >
+                <GitBranch size={14} style={{ color: '#6b7280' }} />
+                {activeBranch}
+                <ChevronDown size={12} style={{ color: '#9ca3af' }} />
+              </button>
+
+              {branchMenuOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '6px',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 38px -10px rgba(22,23,24,0.35), 0 10px 20px -15px rgba(22,23,24,0.2)',
+                    minWidth: '180px',
+                    zIndex: 9999,
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    overflow: 'hidden',
+                    padding: '4px 0',
+                  }}
+                >
+                  <div style={{ padding: '6px 12px', borderBottom: '1px solid #e5e7eb' }}>
+                    <p style={{ fontSize: '0.7rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Switch branch</p>
+                  </div>
+                  {BRANCHES.map(branch => (
+                    <button
+                      key={branch}
+                      onClick={() => { setActiveBranch(branch); setBranchMenuOpen(false) }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '7px 12px',
+                        fontSize: '0.825rem',
+                        color: activeBranch === branch ? '#1f2937' : '#374151',
+                        fontWeight: activeBranch === branch ? 600 : 400,
+                        backgroundColor: activeBranch === branch ? '#f3f4f6' : 'transparent',
+                        width: '100%',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                      className="hover:bg-gray-100"
+                    >
+                      <GitBranch size={13} style={{ color: activeBranch === branch ? '#1f2937' : '#9ca3af' }} />
+                      {branch}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Version label (logged out) */
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 500,
+                color: '#9ca3af',
+                letterSpacing: '0.02em',
+              }}
+            >
+              {APP_VERSION}
+            </span>
+          )}
         </div>
 
         {/* Center: Navigation (truly centered) */}
@@ -68,13 +166,6 @@ export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
             onChange={setSearchQuery}
             placeholder="Search..."
           />
-          <Button
-            variant="outline"
-            className="cursor-pointer"
-            onClick={onContribute}
-          >
-            Contribute
-          </Button>
 
           {isLoggedIn ? (
             <div
@@ -197,7 +288,7 @@ export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
                   <div style={{ height: '1px', backgroundColor: '#e5e7eb', margin: '4px 0' }} />
 
                   <button
-                    onClick={() => { setUserMenuOpen(false); onLogout?.(); }}
+                    onClick={() => { setUserMenuOpen(false); onLogout?.(); navigate('/public'); }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -232,10 +323,99 @@ export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
 
       {/* Mobile: flex layout */}
       <div className="md:hidden flex h-16 items-center justify-between" style={{ paddingLeft: '24px', paddingRight: '16px' }}>
-        {/* Left: Logo */}
-        <a href="/" className="flex items-center">
-          <img src={echoLogo} alt="ECHO" className="h-8" />
-        </a>
+        {/* Left: Logo + Version / Branch */}
+        <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center">
+            <img src={echoLogo} alt="ECHO" className="h-8" />
+          </a>
+          {isLoggedIn ? (
+            <div
+              style={{ position: 'relative' }}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setBranchMenuOpen(false)
+                }
+              }}
+            >
+              <button
+                onClick={() => setBranchMenuOpen(!branchMenuOpen)}
+                className="flex items-center gap-1 cursor-pointer hover:bg-gray-100"
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: 6,
+                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'transparent',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: '#374151',
+                  transition: 'background-color 0.15s ease',
+                }}
+                tabIndex={0}
+              >
+                <GitBranch size={12} style={{ color: '#6b7280' }} />
+                {activeBranch}
+                <ChevronDown size={10} style={{ color: '#9ca3af' }} />
+              </button>
+
+              {branchMenuOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '6px',
+                    backgroundColor: 'white',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 38px -10px rgba(22,23,24,0.35), 0 10px 20px -15px rgba(22,23,24,0.2)',
+                    minWidth: '160px',
+                    zIndex: 9999,
+                    border: '1px solid rgba(0,0,0,0.1)',
+                    overflow: 'hidden',
+                    padding: '4px 0',
+                  }}
+                >
+                  <div style={{ padding: '6px 12px', borderBottom: '1px solid #e5e7eb' }}>
+                    <p style={{ fontSize: '0.65rem', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Switch branch</p>
+                  </div>
+                  {BRANCHES.map(branch => (
+                    <button
+                      key={branch}
+                      onClick={() => { setActiveBranch(branch); setBranchMenuOpen(false) }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '7px 12px',
+                        fontSize: '0.8rem',
+                        color: activeBranch === branch ? '#1f2937' : '#374151',
+                        fontWeight: activeBranch === branch ? 600 : 400,
+                        backgroundColor: activeBranch === branch ? '#f3f4f6' : 'transparent',
+                        width: '100%',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                      className="hover:bg-gray-100"
+                    >
+                      <GitBranch size={12} style={{ color: activeBranch === branch ? '#1f2937' : '#9ca3af' }} />
+                      {branch}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <span
+              style={{
+                fontSize: '0.65rem',
+                fontWeight: 500,
+                color: '#9ca3af',
+              }}
+            >
+              {APP_VERSION}
+            </span>
+          )}
+        </div>
 
         <div className="flex items-center gap-2">
           {/* User avatar on mobile */}
@@ -357,7 +537,7 @@ export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
                   <div style={{ height: '1px', backgroundColor: '#e5e7eb', margin: '4px 0' }} />
 
                   <button
-                    onClick={() => { setUserMenuOpen(false); onLogout?.(); }}
+                    onClick={() => { setUserMenuOpen(false); onLogout?.(); navigate('/public'); }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -402,7 +582,6 @@ export function Navbar({ user, onLogin, onLogout, onContribute }: NavbarProps) {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onLogin={onLogin}
-          onContribute={onContribute}
           isLoggedIn={isLoggedIn}
         />
       )}

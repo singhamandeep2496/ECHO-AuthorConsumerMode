@@ -241,58 +241,7 @@ export function NotificationList({
                 );
             })}
 
-            {/* ProTip + pagination footer */}
-            <Flex
-                align="center"
-                justify="between"
-                style={{
-                    padding: '10px 24px',
-                    borderTop: '1px solid #e5e7eb',
-                    backgroundColor: '#f9fafb'
-                }}
-            >
-                <Flex align="center" gap="2">
-                    <Info size={14} style={{ color: '#6b7280' }} />
-                    <Text size="1" style={{ color: '#6b7280' }}>
-                        <strong>ProTip!</strong> When viewing a notification, press <code style={{
-                            padding: '1px 5px',
-                            backgroundColor: '#e5e7eb',
-                            borderRadius: 4,
-                            fontSize: '0.7rem',
-                            border: '1px solid #d1d5db'
-                        }}>shift u</code> to mark it as Unread.
-                    </Text>
-                </Flex>
-                <Flex align="center" gap="2">
-                    <Text size="1" style={{ color: '#6b7280' }}>
-                        1-{notifications.length} of {notifications.length}
-                    </Text>
-                    <Flex gap="1">
-                        <button style={{
-                            padding: '3px 10px',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: 6,
-                            backgroundColor: 'white',
-                            color: '#9ca3af',
-                            fontSize: '0.75rem',
-                            cursor: 'not-allowed'
-                        }}>
-                            Prev
-                        </button>
-                        <button style={{
-                            padding: '3px 10px',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: 6,
-                            backgroundColor: 'white',
-                            color: '#9ca3af',
-                            fontSize: '0.75rem',
-                            cursor: 'not-allowed'
-                        }}>
-                            Next
-                        </button>
-                    </Flex>
-                </Flex>
-            </Flex>
+
         </Box>
     );
 }

@@ -27,7 +27,6 @@ export function CaseStudyPage() {
                 user={mockUser}
                 onLogin={() => console.log('Login clicked')}
                 onLogout={() => console.log('Logout clicked')}
-                onContribute={() => console.log('Contribute clicked')}
             />
             {isEditMode && (
                 <EditBar

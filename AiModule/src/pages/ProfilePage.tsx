@@ -118,7 +118,6 @@ export function ProfilePage() {
                 user={mockUser}
                 onLogin={() => console.log('Login clicked')}
                 onLogout={() => console.log('Logout clicked')}
-                onContribute={() => console.log('Contribute clicked')}
             />
             <Flex style={{ flex: 1, backgroundColor: '#fafafa', overflow: 'hidden' }}>
                 {/* Left Sidebar */}

@@ -6,7 +6,6 @@ interface MobileMenuProps {
   searchQuery: string
   onSearchChange: (value: string) => void
   onLogin?: () => void
-  onContribute?: () => void
   isLoggedIn?: boolean
 }
 
@@ -14,7 +13,6 @@ export function MobileMenu({
   searchQuery,
   onSearchChange,
   onLogin,
-  onContribute,
   isLoggedIn
 }: MobileMenuProps) {
   return (
@@ -36,13 +34,6 @@ export function MobileMenu({
 
         {/* Mobile Action Buttons */}
         <div className="flex flex-col gap-3 pt-4 border-t border-[var(--color-border)]">
-          <Button
-            variant="outline"
-            className="w-full cursor-pointer"
-            onClick={onContribute}
-          >
-            Contribute
-          </Button>
           {!isLoggedIn && (
             <Button
               className="w-full cursor-pointer"
