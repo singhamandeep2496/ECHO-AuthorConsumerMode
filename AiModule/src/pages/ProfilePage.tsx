@@ -77,6 +77,7 @@ export function ProfilePage() {
 
     const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeReasonFilters, setActiveReasonFilters] = useState<string[]>([]);
     const [doneNotifications, setDoneNotifications] = useState<string[]>([]);
     const [activeSidebarItem, setActiveSidebarItem] = useState('inbox');
 
@@ -98,11 +99,22 @@ export function ProfilePage() {
             // inbox (and saved) show non-done
             if (doneNotifications.includes(n.id)) return false;
         }
+
         const matchesFilter = activeFilter === 'all' || !n.read;
         const matchesSearch = searchQuery === '' ||
             n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             n.repo.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesFilter && matchesSearch;
+
+        const matchesReason = activeReasonFilters.length === 0 || activeReasonFilters.some(filter => {
+            if (filter === 'assigned') return n.role === 'author'; // Mapping 'author' to 'assigned' for demo
+            if (filter === 'participating') return n.role === 'participating';
+            if (filter === 'mentioned') return n.role === 'mentioned';
+            if (filter === 'team') return n.role === 'team mentioned';
+            if (filter === 'review') return n.role === 'review requested';
+            return false;
+        });
+
+        return matchesFilter && matchesSearch && matchesReason;
     });
 
     const showEmptyState = filteredNotifications.length === 0;
@@ -152,6 +164,8 @@ export function ProfilePage() {
                                 onFilterChange={setActiveFilter}
                                 searchQuery={searchQuery}
                                 onSearchChange={setSearchQuery}
+                                activeReasonFilters={activeReasonFilters}
+                                onReasonFiltersChange={setActiveReasonFilters}
                             />
 
                             <NotificationList
