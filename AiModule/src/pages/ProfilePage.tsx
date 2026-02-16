@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Box, Flex, Text } from '@radix-ui/themes';
 import { Navbar } from '../components/Navbar/Navbar';
 import { NotificationSidebar } from '../components/NotificationSidebar';
 import { NotificationFilterBar } from '../components/NotificationFilterBar';
 import { NotificationList } from '../components/NotificationList';
+import { Dashboard } from '../components/Dashboard/Dashboard';
 import Peep from 'react-peeps';
 
 // Dummy notification data — adapted to GitHub-style
@@ -17,7 +19,18 @@ const mockUser = {
 };
 
 export function ProfilePage() {
-    const [activeSection, setActiveSection] = useState('notifications');
+    const [searchParams] = useSearchParams();
+    const tabParam = searchParams.get('tab');
+
+    // Initialize activeSection based on tab param if present, otherwise default to 'notifications'
+    const [activeSection, setActiveSection] = useState(tabParam || 'notifications');
+
+    // Sync activeSection with tab param when it changes
+    useEffect(() => {
+        if (tabParam) {
+            setActiveSection(tabParam);
+        }
+    }, [tabParam]);
 
     const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all');
     const [searchQuery, setSearchQuery] = useState('');
@@ -142,31 +155,7 @@ export function ProfilePage() {
                     )}
 
                     {activeSection === 'dashboard' && (
-                        <Flex
-                            direction="column"
-                            align="center"
-                            justify="center"
-                            style={{ flex: 1, textAlign: 'center', paddingBottom: 60, backgroundColor: 'white' }}
-                        >
-                            <Box style={{ marginBottom: 24 }}>
-                                <Peep
-                                    style={{ width: 200, height: 200 }}
-                                    accessory="None"
-                                    body="DotJacket"
-                                    face="Driven"
-                                    hair="Turban"
-                                    facialHair="None"
-                                    strokeColor="#22c55e"
-                                    viewBox={{ x: '0', y: '0', width: '1050', height: '1200' }}
-                                />
-                            </Box>
-                            <Text size="5" weight="bold" style={{ color: '#1f2937', marginBottom: 8 }}>
-                                Dashboard
-                            </Text>
-                            <Text size="2" style={{ color: '#6b7280' }}>
-                                User dashboard coming soon...
-                            </Text>
-                        </Flex>
+                        <Dashboard />
                     )}
                 </Box>
             </Flex>

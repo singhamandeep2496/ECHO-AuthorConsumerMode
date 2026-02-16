@@ -368,7 +368,7 @@ export function Navbar({ user, onLogin, onLogout, showNotificationDot = true }: 
                     </a>
 
                     <a
-                      href="/"
+                      href="/profile?tab=dashboard"
                       style={{
                         display: 'block',
                         padding: '8px 16px',
@@ -587,7 +587,7 @@ export function Navbar({ user, onLogin, onLogout, showNotificationDot = true }: 
                   </a>
 
                   <a
-                    href="/"
+                    href="/profile?tab=dashboard"
                     style={{
                       display: 'block',
                       padding: '8px 16px',
