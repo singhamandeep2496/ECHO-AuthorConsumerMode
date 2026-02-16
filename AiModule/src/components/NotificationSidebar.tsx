@@ -16,7 +16,7 @@ export function NotificationSidebar({
     notificationBadge,
 }: NotificationSidebarProps) {
     const mainNavItems = [
-        { id: 'profile', label: 'Profile', icon: <PersonIcon /> },
+        { id: 'profile', label: 'Account Settings', icon: <PersonIcon /> },
         { id: 'notifications', label: 'Notifications', icon: <BellIcon />, badge: notificationBadge },
         { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
     ];

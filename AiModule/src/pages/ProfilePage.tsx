@@ -99,7 +99,6 @@ export function ProfilePage() {
                     <NotificationSidebar
                         activeSection={activeSection}
                         onSectionChange={setActiveSection}
-                        notificationBadge={unreadCount}
                     />
                 </Box>
 
@@ -146,10 +145,10 @@ export function ProfilePage() {
                                 />
                             </Box>
                             <Text size="5" weight="bold" style={{ color: '#1f2937', marginBottom: 8 }}>
-                                Profile
+                                Account Settings
                             </Text>
                             <Text size="2" style={{ color: '#6b7280' }}>
-                                Profile settings coming soon...
+                                Account settings coming soon...
                             </Text>
                         </Flex>
                     )}
