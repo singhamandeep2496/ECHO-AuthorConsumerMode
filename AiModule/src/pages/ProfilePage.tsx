@@ -7,63 +7,7 @@ import { NotificationList } from '../components/NotificationList';
 import Peep from 'react-peeps';
 
 // Dummy notification data — adapted to GitHub-style
-const notificationsData = [
-    {
-        id: '1',
-        type: 'review',
-        repo: 'arul-vida/ECHO-PM',
-        issueNumber: '#5',
-        title: 'Design specs for echo portal derived from system level specs in the PRDs',
-        role: 'author',
-        avatarInitials: 'AV',
-        time: '2 hours ago',
-        read: false
-    },
-    {
-        id: '2',
-        type: 'feedback',
-        repo: 'arul-vida/ECHO-PM',
-        issueNumber: '#12',
-        title: 'Update color palette documentation for DIRT.E K3 brand guidelines',
-        role: 'mentioned',
-        avatarInitials: 'SK',
-        time: '5 hours ago',
-        read: false
-    },
-    {
-        id: '3',
-        type: 'approval',
-        repo: 'echo-design/HMI-Dashboard',
-        issueNumber: '#8',
-        title: 'HMI Dashboard layout improvements and responsive breakpoints',
-        role: 'author',
-        avatarInitials: 'MJ',
-        time: '1 day ago',
-        read: true
-    },
-    {
-        id: '4',
-        type: 'review',
-        repo: 'echo-design/CApp-Flows',
-        issueNumber: '#3',
-        title: 'User flow diagrams for CApp onboarding and registration',
-        role: 'review requested',
-        avatarInitials: 'MK',
-        time: '2 days ago',
-        read: true
-    },
-    {
-        id: '5',
-        type: 'feedback',
-        repo: 'arul-vida/ECHO-PM',
-        issueNumber: '#7',
-        title: 'Component library audit and accessibility improvements',
-        role: 'participating',
-        avatarInitials: 'JD',
-        time: 'last month',
-        read: true
-    }
-];
+import { notificationsData } from '../data/mockNotifications';
 
 
 
@@ -79,10 +23,10 @@ export function ProfilePage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeReasonFilters, setActiveReasonFilters] = useState<string[]>([]);
     const [doneNotifications, setDoneNotifications] = useState<string[]>([]);
-    const [activeSidebarItem, setActiveSidebarItem] = useState('inbox');
+    // const [activeSidebarItem, setActiveSidebarItem] = useState('inbox');
 
     const unreadCount = notificationsData.filter(n => !n.read && !doneNotifications.includes(n.id)).length;
-    const doneCount = doneNotifications.length;
+    // const doneCount = doneNotifications.length;
 
     // Mark a single notification as done (or undo)
     const markAsDone = (id: string) => {
@@ -92,13 +36,8 @@ export function ProfilePage() {
     };
 
     const filteredNotifications = notificationsData.filter(n => {
-        // Panel filter: inbox shows non-done, done shows done
-        if (activeSidebarItem === 'done') {
-            if (!doneNotifications.includes(n.id)) return false;
-        } else {
-            // inbox (and saved) show non-done
-            if (doneNotifications.includes(n.id)) return false;
-        }
+        // Always show non-done notifications (Inbox behavior)
+        if (doneNotifications.includes(n.id)) return false;
 
         const matchesFilter = activeFilter === 'all' || !n.read;
         const matchesSearch = searchQuery === '' ||
@@ -122,7 +61,7 @@ export function ProfilePage() {
 
 
     // Unique repos from notifications
-    const repos = [...new Set(notificationsData.map(n => n.repo))];
+    // const repos = [...new Set(notificationsData.map(n => n.repo))];
 
     return (
         <div className="h-screen flex flex-col overflow-hidden">
@@ -130,6 +69,7 @@ export function ProfilePage() {
                 user={mockUser}
                 onLogin={() => console.log('Login clicked')}
                 onLogout={() => console.log('Logout clicked')}
+                showNotificationDot={activeSection !== 'notifications'}
             />
             <Flex style={{ flex: 1, backgroundColor: '#fafafa', overflow: 'hidden' }}>
                 {/* Left Sidebar */}
@@ -146,12 +86,7 @@ export function ProfilePage() {
                     <NotificationSidebar
                         activeSection={activeSection}
                         onSectionChange={setActiveSection}
-                        activeSidebarItem={activeSidebarItem}
-                        onSidebarItemChange={setActiveSidebarItem}
-                        inboxCount={notificationsData.length - doneCount}
-                        doneCount={doneCount}
                         notificationBadge={unreadCount}
-                        repositories={repos}
                     />
                 </Box>
 
@@ -172,7 +107,7 @@ export function ProfilePage() {
                                 notifications={filteredNotifications}
                                 doneNotifications={doneNotifications}
                                 onMarkAsDone={markAsDone}
-                                headerLabel={activeSidebarItem === 'done' ? 'Completed' : 'Inbox'}
+                                headerLabel="Inbox"
                                 showEmptyState={showEmptyState}
                             />
                         </Flex>

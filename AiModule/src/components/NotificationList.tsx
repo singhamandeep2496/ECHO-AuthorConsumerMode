@@ -126,18 +126,21 @@ export function NotificationList({
             direction="column"
             style={{
                 flex: 1,
-                padding: '0 16px 16px',
+                padding: '0 16px 24px', // Increased bottom padding
                 overflow: 'hidden'
             }}
         >
             <Flex
                 direction="column"
                 style={{
-                    flex: 1,
+                    // Removed flex: 1 so it hugs content
+                    maxHeight: '100%',
                     backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: 6,
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}
             >
                 {/* Header row with Select All */}

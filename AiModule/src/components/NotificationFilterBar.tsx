@@ -82,7 +82,7 @@ export function NotificationFilterBar({
             justify="between"
             style={{
                 padding: '12px 24px',
-                backgroundColor: 'white',
+                backgroundColor: 'transparent',
                 gap: 16
             }}
         >
@@ -109,7 +109,7 @@ export function NotificationFilterBar({
                             fontWeight: 500,
                             fontSize: '0.8rem',
                             cursor: 'pointer',
-                            shadow: activeFilter === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                            boxShadow: activeFilter === 'all' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                             transition: 'all 0.1s ease',
                         }}
                     >
@@ -126,7 +126,7 @@ export function NotificationFilterBar({
                             fontWeight: 500,
                             fontSize: '0.8rem',
                             cursor: 'pointer',
-                            shadow: activeFilter === 'unread' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                            boxShadow: activeFilter === 'unread' ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
                             transition: 'all 0.1s ease',
                         }}
                     >
