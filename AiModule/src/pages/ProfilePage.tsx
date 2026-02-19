@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Box, Flex, Text } from '@radix-ui/themes';
+import { Box, Flex } from '@radix-ui/themes';
 import { Navbar } from '../components/Navbar/Navbar';
 import { NotificationSidebar } from '../components/NotificationSidebar';
 import { NotificationFilterBar } from '../components/NotificationFilterBar';
 import { NotificationList } from '../components/NotificationList';
 import { Dashboard } from '../components/Dashboard/Dashboard';
-import Peep from 'react-peeps';
+import { AccountSettings } from '../components/AccountSettings/AccountSettings';
 
 // Dummy notification data — adapted to GitHub-style
 import { notificationsData } from '../data/mockNotifications';
@@ -36,10 +36,26 @@ export function ProfilePage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeReasonFilters, setActiveReasonFilters] = useState<string[]>([]);
     const [doneNotifications, setDoneNotifications] = useState<string[]>([]);
-    // const [activeSidebarItem, setActiveSidebarItem] = useState('inbox');
+    const [seenNotifications, setSeenNotifications] = useState<string[]>([]);
 
-    const unreadCount = notificationsData.filter(n => !n.read && !doneNotifications.includes(n.id)).length;
-    // const doneCount = doneNotifications.length;
+    const unreadCount = notificationsData.filter(n =>
+        !n.read &&
+        !doneNotifications.includes(n.id) &&
+        !seenNotifications.includes(n.id)
+    ).length;
+
+    // Mark notifications as seen when visiting the tab
+    useEffect(() => {
+        if (activeSection === 'notifications') {
+            const currentUnreadIds = notificationsData
+                .filter(n => !n.read && !doneNotifications.includes(n.id))
+                .map(n => n.id);
+
+            if (currentUnreadIds.length > 0) {
+                setSeenNotifications(prev => [...new Set([...prev, ...currentUnreadIds])]);
+            }
+        }
+    }, [activeSection, doneNotifications]);
 
     // Mark a single notification as done (or undo)
     const markAsDone = (id: string) => {
@@ -99,6 +115,7 @@ export function ProfilePage() {
                     <NotificationSidebar
                         activeSection={activeSection}
                         onSectionChange={setActiveSection}
+                        notificationBadge={unreadCount}
                     />
                 </Box>
 
@@ -126,31 +143,7 @@ export function ProfilePage() {
                     )}
 
                     {activeSection === 'profile' && (
-                        <Flex
-                            direction="column"
-                            align="center"
-                            justify="center"
-                            style={{ flex: 1, textAlign: 'center', paddingBottom: 60, backgroundColor: 'white' }}
-                        >
-                            <Box style={{ marginBottom: 24 }}>
-                                <Peep
-                                    style={{ width: 200, height: 200 }}
-                                    accessory="GlassRoundThick"
-                                    body="Shirt"
-                                    face="Cute"
-                                    hair="ShortVolumed"
-                                    facialHair="None"
-                                    strokeColor="#f97316"
-                                    viewBox={{ x: '0', y: '0', width: '1050', height: '1200' }}
-                                />
-                            </Box>
-                            <Text size="5" weight="bold" style={{ color: '#1f2937', marginBottom: 8 }}>
-                                Account Settings
-                            </Text>
-                            <Text size="2" style={{ color: '#6b7280' }}>
-                                Account settings coming soon...
-                            </Text>
-                        </Flex>
+                        <AccountSettings />
                     )}
 
                     {activeSection === 'dashboard' && (

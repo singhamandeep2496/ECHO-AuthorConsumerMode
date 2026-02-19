@@ -353,7 +353,7 @@ export function Navbar({ user, onLogin, onLogout, showNotificationDot = true }: 
 
 
                     <a
-                      href="/settings"
+                      href="/profile?tab=profile"
                       style={{
                         display: 'block',
                         padding: '8px 16px',
@@ -574,7 +574,7 @@ export function Navbar({ user, onLogin, onLogout, showNotificationDot = true }: 
 
 
                   <a
-                    href="/settings"
+                    href="/profile?tab=profile"
                     style={{
                       display: 'block',
                       padding: '8px 16px',
